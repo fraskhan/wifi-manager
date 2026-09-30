@@ -18,6 +18,7 @@ function Portal() {
   const [me, setMe] = useState<any>(null);
   const [state, setState] = useState<"loading" | "need-login" | "need-sub" | "online" | "error">("loading");
   const [authUrl, setAuthUrl] = useState<string | null>(null);
+  const [creds, setCreds] = useState<{ ssid: string; password: string } | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -39,6 +40,9 @@ function Portal() {
           setSession(r.session);
           setAuthUrl(r.session.auth_url || null);
         }
+        // Manual mode: no gateway → just hand over the Wi-Fi credentials.
+        const c = await api<{ ssid: string; password: string }>("/network/credentials").catch(() => null);
+        setCreds(c);
         setState("online");
       } catch (e: any) {
         setError(e.message); setState("error");
@@ -85,6 +89,13 @@ function Portal() {
             </p>
             {authUrl ? (
               <a href={authUrl} className="btn btn-primary w-full">Continue to Internet</a>
+            ) : creds ? (
+              <div className="text-left rounded-lg bg-[#0d1526] border border-[var(--card-border)] p-4 text-sm">
+                <div className="label">Wi-Fi network</div>
+                <div className="font-mono font-bold mb-2">{creds.ssid || "—"}</div>
+                <div className="label">Password</div>
+                <div className="font-mono font-bold">{creds.password || "—"}</div>
+              </div>
             ) : (
               <p className="text-xs text-slate-500">Session authorized — you can browse now.</p>
             )}

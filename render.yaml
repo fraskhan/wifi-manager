@@ -1,0 +1,46 @@
+# Render Blueprint — deploys the backend API.
+# Render dashboard → New → Blueprint → point at this repo.
+# Fill the env vars marked sync:false when prompted (or set them in the dashboard).
+services:
+  - type: web
+    name: wifi-api
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/index.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false          # your Supabase pooler URI
+      - key: JWT_SECRET
+        sync: false
+      - key: NETWORK_API_KEY
+        sync: false
+      - key: PAYMENT_PROVIDER
+        value: paymongo
+      - key: PAYMONGO_SECRET_KEY
+        sync: false          # sk_live_... when going live
+      - key: PAYMONGO_WEBHOOK_SECRET
+        sync: false          # whsk_... for the LIVE webhook
+      - key: PAYMONGO_SUCCESS_URL
+        sync: false          # https://<your-vercel-domain>/payment/result?status=success
+      - key: PAYMONGO_CANCEL_URL
+        sync: false          # https://<your-vercel-domain>/payment/result?status=cancelled
+      - key: PORTAL_BASE_URL
+        sync: false          # https://<your-vercel-domain>
+      - key: FRONTEND_URL
+        sync: false          # https://<your-vercel-domain>
+      - key: ALLOW_TEST_PAYMENTS
+        value: "false"
+      - key: SEED_ON_BOOT
+        value: "true"        # creates admin + default plans on first boot, then is a no-op
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false          # set a strong one — NOT admin123
+      - key: ADMIN_NAME
+        value: Administrator

@@ -6,23 +6,29 @@ import Link from "next/link";
 import { api, getMe, Me, Session, Subscription } from "@/lib/api";
 import { fmtDate, peso, speedLabel, StatusBadge, timeLeft } from "@/lib/format";
 
+type Credentials = { ssid: string; password: string; instructions: string };
+
 export default function Dashboard() {
   const router = useRouter();
   const [me, setMe] = useState<Me | null>(null);
   const [history, setHistory] = useState<Subscription[]>([]);
   const [sessions, setSessions] = useState<Session[]>([]);
+  const [creds, setCreds] = useState<Credentials | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   async function load() {
     const m = await getMe();
     if (!m) { router.push("/login?next=/dashboard"); return; }
     setMe(m);
-    const [subs, net] = await Promise.all([
+    const [subs, net, cred] = await Promise.all([
       api<{ history: Subscription[] }>("/subscriptions/me").catch(() => ({ history: [] })),
       api<{ sessions: Session[] }>("/network/status").catch(() => ({ sessions: [] })),
+      m.subscription ? api<Credentials>("/network/credentials").catch(() => null) : Promise.resolve(null),
     ]);
     setHistory(subs.history);
     setSessions(net.sessions);
+    setCreds(cred);
     setLoaded(true);
   }
 
@@ -85,6 +91,31 @@ export default function Dashboard() {
           <button className="btn btn-ghost" onClick={load}>Refresh</button>
         </div>
       </div>
+
+      {sub && creds && (
+        <div className="card p-6 mb-6 border-[var(--accent)]/40">
+          <div className="text-xs uppercase tracking-widest text-[var(--accent)] mb-3">Your Wi-Fi access</div>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <div className="label">Network name (SSID)</div>
+              <div className="font-mono text-lg font-bold">{creds.ssid || "—"}</div>
+            </div>
+            <div>
+              <div className="label">Wi-Fi password</div>
+              <div className="flex items-center gap-2">
+                <div className="font-mono text-lg font-bold">{creds.password || "—"}</div>
+                {creds.password && (
+                  <button
+                    className="btn btn-ghost !py-1 !px-2 text-xs"
+                    onClick={() => { navigator.clipboard?.writeText(creds.password); setCopied(true); setTimeout(() => setCopied(false), 1500); }}
+                  >{copied ? "Copied" : "Copy"}</button>
+                )}
+              </div>
+            </div>
+          </div>
+          {creds.instructions && <p className="text-sm text-slate-400 mt-4">{creds.instructions}</p>}
+        </div>
+      )}
 
       <div className="grid md:grid-cols-2 gap-6">
         <div className="card p-6">

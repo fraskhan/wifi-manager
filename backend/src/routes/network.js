@@ -18,6 +18,22 @@ router.get('/status', requireAuth, async (req, res, next) => {
 });
 
 /**
+ * Manual mode (no gateway hardware): ACTIVE subscribers get the Wi-Fi
+ * credentials to connect manually. Revealed only after payment.
+ */
+router.get('/credentials', requireAuth, async (req, res, next) => {
+  try {
+    const subscription = await getActiveSubscription(req.user.id);
+    if (!subscription) return res.status(402).json({ error: 'Active subscription required' });
+    const { rows } = await query(
+      `SELECT key, value FROM app_settings WHERE key IN ('wifi_ssid','wifi_password','wifi_instructions')`
+    );
+    const s = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+    res.json({ ssid: s.wifi_ssid || '', password: s.wifi_password || '', instructions: s.wifi_instructions || '' });
+  } catch (e) { next(e); }
+});
+
+/**
  * Dev tool: pretend a device just connected to Wi-Fi and got captured by the
  * portal. Creates the same pending session openNDS would via /api/fas.
  */

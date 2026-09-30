@@ -230,4 +230,30 @@ router.get('/webhook-events', async (_req, res, next) => {
   } catch (e) { next(e); }
 });
 
+/* ---------- App settings (manual-mode Wi-Fi credentials etc.) ---------- */
+
+const EDITABLE_KEYS = ['wifi_ssid', 'wifi_password', 'wifi_instructions', 'manual_mode'];
+
+router.get('/settings', async (_req, res, next) => {
+  try {
+    const { rows } = await query('SELECT key, value FROM app_settings');
+    res.json({ settings: Object.fromEntries(rows.map((r) => [r.key, r.value])) });
+  } catch (e) { next(e); }
+});
+
+router.put('/settings', async (req, res, next) => {
+  try {
+    const entries = Object.entries(req.body || {}).filter(([k]) => EDITABLE_KEYS.includes(k));
+    for (const [key, value] of entries) {
+      await query(
+        `INSERT INTO app_settings (key, value, updated_at) VALUES ($1, $2, now())
+         ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = now()`,
+        [key, String(value ?? '')]
+      );
+    }
+    const { rows } = await query('SELECT key, value FROM app_settings');
+    res.json({ settings: Object.fromEntries(rows.map((r) => [r.key, r.value])) });
+  } catch (e) { next(e); }
+});
+
 export default router;

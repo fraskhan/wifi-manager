@@ -12,6 +12,7 @@ const NAV = [
   ["Payments", "/admin/payments"],
   ["Plans", "/admin/plans"],
   ["Network", "/admin/network"],
+  ["Settings", "/admin/settings"],
 ] as const;
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

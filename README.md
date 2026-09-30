@@ -122,3 +122,29 @@ GET  /api/admin/users/:id
 Subscribe to **Test 5 Minutes (₱1)** → mock-pay it → `/dashboard` shows ACTIVE.
 Within ~5 minutes the 30-second sweeper marks it EXPIRED and deauthorizes the
 session — the device falls back behind the portal.
+
+## Manual mode (no router hardware)
+
+Until an openNDS gateway exists, run in **manual mode**: customers pay, and the
+dashboard/portal reveals the actual Wi-Fi password you set in
+**Admin → Settings**. Customers get online by joining the Huawei Wi-Fi with
+that password. Rotate the password periodically.
+
+## Deploy (Render + Vercel, free)
+
+1. Push this repo to GitHub.
+2. **Backend → Render**: New → Blueprint → select repo (uses `render.yaml`).
+   Fill the `sync:false` env vars: `DATABASE_URL` (Supabase), `JWT_SECRET`,
+   `NETWORK_API_KEY`, `PAYMONGO_*` (live keys), `ADMIN_PASSWORD`,
+   `PORTAL_BASE_URL`/`FRONTEND_URL`/`PAYMONGO_*_URL` = your Vercel domain.
+   `SEED_ON_BOOT=true` seeds admin + plans once.
+3. **Frontend → Vercel**: Import repo → **root directory `frontend/`** →
+   env `BACKEND_URL=https://<render-service>.onrender.com` → Deploy.
+4. **PayMongo live**: switch dashboard to live mode → `sk_live_` key into
+   `PAYMONGO_SECRET_KEY` → create a **live-mode webhook** at
+   `https://<render-service>.onrender.com/api/payments/webhook` → `whsk_` into
+   `PAYMONGO_WEBHOOK_SECRET`.
+5. Set `wifi_ssid` + `wifi_password` in **Admin → Settings** (manual mode), or
+   point openNDS `fasurl` at the Render API once you have the gateway hardware.
+
+Free Render services sleep when idle — first request after idle takes ~30s.
