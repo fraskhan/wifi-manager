@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0b1220;
+  --foreground: #e7ecf3;
+  --card: #111a2e;
+  --card-border: #1f2a44;
+  --accent: #22d3ee;
+  --accent-2: #818cf8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.btn:hover { opacity: 0.9; }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #081018; }
+.btn-ghost { border: 1px solid var(--card-border); color: var(--foreground); background: transparent; }
+.btn-danger { background: #7f1d1d; color: #fecaca; }
+
+.input {
+  width: 100%;
+  background: #0d1526;
+  border: 1px solid var(--card-border);
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  color: var(--foreground);
+  font-size: 0.9rem;
+}
+.input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+.label { display: block; font-size: 0.8rem; color: #93a1bb; margin-bottom: 0.375rem; }
+
+.table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.table th { text-align: left; color: #93a1bb; font-weight: 600; padding: 0.625rem 0.75rem; border-bottom: 1px solid var(--card-border); }
+.table td { padding: 0.625rem 0.75rem; border-bottom: 1px solid #16203a; }

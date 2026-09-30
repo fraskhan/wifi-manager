@@ -1,0 +1,20 @@
+{
+  "name": "wifi-manager",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Prepaid Wi-Fi management system: captive portal, subscriptions, payments, and OpenWrt/openNDS network control.",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "npm run dev --workspace backend",
+    "dev:frontend": "npm run dev --workspace frontend",
+    "migrate": "npm run migrate --workspace backend",
+    "seed": "npm run seed --workspace backend",
+    "smoke": "npm run smoke --workspace backend"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
